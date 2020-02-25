@@ -1,7 +1,7 @@
 from requests import get
 from base64 import b64encode
 from os import getcwd
-from os.path import dirname
+from os.path import dirname, exists
 from re import search, sub
 from time import localtime, strftime
 from aria2 import addUri
@@ -57,7 +57,7 @@ def get_dk_token(cid, term_id):
     return b64encode(f'uin={uin};vod_type=0;cid={cid};term_id={term_id};plskey={plskey};pskey={pskey}'.encode()).decode()
 
 
-def dlAll(cid, term_id):
+def dlAll(cid, term_id, skip_exist=True, skip_list=None):
     _dir = getcwd()
     for ii in get_replay_list_to_c(term_id)['result']['replay_info_list']:
         task_name = ii['task_name']
@@ -65,6 +65,10 @@ def dlAll(cid, term_id):
         file_id = ii['file']['file_id']
         duration = ii['file']['duration']
         name = f'{task_name} {strftime("%Y-%m-%d %H-%M-%S", localtime(bg_time))} ({(duration + 59) // 60}min)'
+        if skip_list and name in skip_list:
+            continue
+        if skip_exist and exists(name + '.ts'):
+            continue
         dlu, dku = getDLUrl(term_id, file_id)
         addUri(dlu, {'out': name + '.ts', 'dir': _dir})
         addUri(f'{dku}&token={get_dk_token(cid, term_id)}', {'out': name + '.key', 'dir': _dir})

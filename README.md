@@ -11,4 +11,4 @@ from api import dlAll
 dlAll(cid, term_id)
 ```
 
-after download complete, drag and drop `*.ts` to `util.py` to decrypt.
+after download complete, drag and drop `*.ts` onto `util.py` to decrypt.
